@@ -1,0 +1,43 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --host",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "start": "nuxt start"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.5",
+    "@fontsource/poppins": "^5.2.6",
+    "@headlessui/vue": "^1.7.23",
+    "@heroicons/vue": "^2.2.0",
+    "@tailwindcss/forms": "^0.5.10",
+    "archiver": "^7.0.1",
+    "better-sqlite3": "^11.10.0",
+    "framer-motion": "^12.11.0",
+    "lodash-es": "^4.17.21",
+    "node-cron": "^4.0.4",
+    "typescript": "^5.8.3",
+    "unzipper": "^0.12.3",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.1",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@types/archiver": "^6.0.3",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/lodash-es": "^4.17.12",
+    "@types/unzipper": "^0.10.11",
+    "autoprefixer": "^10.4.18",
+    "eslint-plugin-vuejs-accessibility": "^2.4.1",
+    "nuxt": "^3.17.3",
+    "postcss": "^8.4.35",
+    "postcss-nested": "^7.0.2",
+    "tailwindcss": "^3.4.1"
+  }
+}
