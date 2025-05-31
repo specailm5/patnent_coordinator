@@ -1,20 +1,11 @@
-import { resolve } from 'path';
 import Database from 'better-sqlite3';
-import fs from 'fs'; 
+import { vi } from 'vitest';
 
+// Create an in-memory SQLite database for testing
+const mockDb = new Database(':memory:');
 
-const dbPath = resolve(process.cwd(), 'server', 'data');
-const dbFile = resolve(dbPath, 'data.db');
-
-
-if (!fs.existsSync(dbPath)) {
-  fs.mkdirSync(dbPath, { recursive: true });
-}
-
-const db = new Database(dbFile);
-
-
-db.prepare(`
+// Apply schema definitions
+mockDb.exec(`
   CREATE TABLE IF NOT EXISTS patients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -22,55 +13,33 @@ db.prepare(`
     contact TEXT NOT NULL,
     location TEXT,
     isBaby INTEGER DEFAULT 0
-  )
-`).run();
+  );
 
-// Roles table
-db.prepare(`
   CREATE TABLE IF NOT EXISTS roles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE
-  )
-`).run();
+  );
 
-// Insert predefined roles
-const roles = ['Admin', 'Manager', 'Coordinator', 'Intern'];
-const insertRole = db.prepare('INSERT OR IGNORE INTO roles (name) VALUES (?)');
-roles.forEach(role => {
-  insertRole.run(role);
-});
-
-// Users table
-db.prepare(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     role_id INTEGER,
     FOREIGN KEY(role_id) REFERENCES roles(id)
-  )
-`).run();
+  );
 
-
-db.prepare(`
   CREATE TABLE IF NOT EXISTS coordinators (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     first_name TEXT NOT NULL,
     last_name TEXT
-  )
-`).run();
+  );
 
-
-db.prepare(`
   CREATE TABLE IF NOT EXISTS staff (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     full_name TEXT NOT NULL,
     occupation TEXT NOT NULL
-  )
-`).run();
+  );
 
-
-db.prepare(`
   CREATE TABLE IF NOT EXISTS tracking (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     patient_id INTEGER NOT NULL,
@@ -96,19 +65,34 @@ db.prepare(`
     updated_at TEXT,
     FOREIGN KEY(patient_id) REFERENCES patients(id),
     FOREIGN KEY(coordinator_id) REFERENCES coordinators(id)
-  )
-`).run();
+  );
 
-
-db.prepare(`
   CREATE TABLE IF NOT EXISTS activities (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    type TEXT NOT NULL, -- patients, coordinators, staff, tracking
-    action TEXT NOT NULL, -- add, edit, delete
+    type TEXT NOT NULL, -- patients, coordinators, staff, tracking, user_management
+    action TEXT NOT NULL, -- add, edit, delete, login, logout, register
     entity_id INTEGER,
     message TEXT NOT NULL,
     date TEXT NOT NULL
-  )
-`).run();
+  );
+`);
 
-export default db;
+// Insert predefined roles
+const roles = ['Admin', 'Manager', 'Coordinator', 'Intern'];
+const insertRoleStmt = mockDb.prepare('INSERT OR IGNORE INTO roles (name) VALUES (?)');
+roles.forEach(role => {
+  insertRoleStmt.run(role);
+});
+
+// Mock the actual database module to use this in-memory database
+// Note: Adjust the path '~/server/database/schema' if your project's alias resolution
+// or relative pathing differs in the test environment.
+// Vitest's `vi.mock` hoists, so this will run before imports in test files.
+vi.mock('~/server/database/schema', () => ({
+  default: mockDb,
+}));
+
+// Optional: Define a cleanup function or use Vitest's lifecycle hooks if needed
+// e.g., afterEach(() => { /* cleanup data from tables */ })
+
+console.log('Mock DB setup complete with in-memory SQLite.');

@@ -15,8 +15,11 @@
     "@fontsource/poppins": "^5.2.6",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
+    "@sidebase/nuxt-auth": "^0.10.1",
     "@tailwindcss/forms": "^0.5.10",
+    "@types/bcrypt": "^5.0.2",
     "archiver": "^7.0.1",
+    "bcrypt": "^6.0.0",
     "better-sqlite3": "^11.10.0",
     "framer-motion": "^12.11.0",
     "lodash-es": "^4.17.21",
@@ -28,16 +31,21 @@
     "zod": "^3.24.4"
   },
   "devDependencies": {
+    "@nuxt/test-utils": "^3.19.1",
+    "@nuxt/test-utils-edge": "^3.8.0-28284309.b3d3d7f4",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@types/archiver": "^6.0.3",
     "@types/better-sqlite3": "^7.6.13",
     "@types/lodash-es": "^4.17.12",
+    "@types/supertest": "^6.0.3",
     "@types/unzipper": "^0.10.11",
     "autoprefixer": "^10.4.18",
     "eslint-plugin-vuejs-accessibility": "^2.4.1",
     "nuxt": "^3.17.3",
     "postcss": "^8.4.35",
     "postcss-nested": "^7.0.2",
-    "tailwindcss": "^3.4.1"
+    "supertest": "^7.1.1",
+    "tailwindcss": "^3.4.1",
+    "vitest": "^0.33.0"
   }
 }
