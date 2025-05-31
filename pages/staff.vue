@@ -35,7 +35,7 @@
       <transition name="fade">
         <div v-if="!loading" class="space-y-6">
           <!-- Add Staff Form -->
-          <div class="card p-4 sm:p-6 bg-white/80 dark:bg-secondary-800/80 backdrop-blur-sm animate-fadeIn shadow-lg hover:shadow-xl transition-all duration-300">
+          <div v-if="canManageStaff" class="card p-4 sm:p-6 bg-white/80 dark:bg-secondary-800/80 backdrop-blur-sm animate-fadeIn shadow-lg hover:shadow-xl transition-all duration-300">
             <form @submit.prevent="create" class="space-y-4 sm:space-y-6">
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div class="space-y-1">
@@ -86,7 +86,7 @@
                     <tr>
                       <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Full Name</th>
                       <th class="hidden sm:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Occupation</th>
-                      <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Actions</th>
+                      <th v-if="canManageStaff" class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody class="bg-white dark:bg-secondary-900 divide-y divide-secondary-200 dark:divide-secondary-700">
@@ -98,7 +98,7 @@
                         </div>
                       </td>
                       <td class="hidden sm:table-cell px-4 sm:px-6 py-4 text-secondary-600 dark:text-secondary-400">{{ s.occupation }}</td>
-                      <td class="px-4 sm:px-6 py-4">
+                      <td v-if="canManageStaff" class="px-4 sm:px-6 py-4">
                         <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
                           <button @click="openEdit(s)" :class="[colors.bgSolid, 'btn btn-sm text-white w-full sm:w-auto focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 ring-offset-2 dark:ring-offset-secondary-900 transition-all duration-150 ease-in-out']" :disabled="loading">
                             Edit
@@ -110,10 +110,12 @@
                       </td>
                     </tr>
                     <tr v-if="!loading && !staffMembers.length">
-                      <td colspan="3" class="px-4 sm:px-6 py-8 sm:py-12 text-center">
+                      <td :colspan="canManageStaff ? 3 : 2" class="px-4 sm:px-6 py-8 sm:py-12 text-center">
                         <div class="flex flex-col items-center gap-2">
                           <svg class="w-8 h-8 sm:w-10 sm:h-10 text-secondary-300 dark:text-secondary-600 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0-1.657-1.343-3-3-3s-3 1.343-3 3 1.343 3 3 3 3-1.343 3-3zm6 0c0-1.657-1.343-3-3-3s-3 1.343-3 3 1.343 3 3 3 3-1.343 3-3z"/></svg>
-                          <p class="text-sm sm:text-base text-secondary-500 dark:text-secondary-400 text-center">No staff members found.<br>Add your first staff member using the form above.</p>
+                          <p class="text-sm sm:text-base text-secondary-500 dark:text-secondary-400 text-center">No staff members found.<br>
+                            <span v-if="canManageStaff">Add your first staff member using the form above.</span>
+                          </p>
                         </div>
                       </td>
                     </tr>
@@ -126,7 +128,7 @@
       </transition>
 
       <!-- Edit Modal - Mobile First -->
-      <div v-if="showEditModal" class="fixed inset-0 bg-black/40 z-50 overflow-y-auto">
+      <div v-if="showEditModal && canManageStaff" class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-50 overflow-y-auto">
         <div class="min-h-screen px-4 text-center flex items-center justify-center">
           <div class="card w-full max-w-lg p-4 sm:p-6 m-4 animate-fadeIn">
             <div class="flex items-center justify-between mb-4 sm:mb-6 pb-3 border-b border-secondary-200 dark:border-secondary-700">
@@ -163,10 +165,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue' // Added computed
 import { usePageColors } from '~/composables/usePageColors'
+import { useAuth } from '#imports' // Added for useAuth
+
+definePageMeta({
+  // middleware: 'auth', // The global middleware will handle this
+  requiredRole: ['Admin', 'Manager'] // Custom meta field for our global auth middleware
+})
 
 const { colors } = usePageColors()
+const { data: session } = useAuth() // Get session data
+
+const userRole = computed(() => (session.value?.user as any)?.role)
+
+// Define which roles can perform write actions on this page
+const canManageStaff = computed(() => {
+  if (!userRole.value) return false
+  return ['Admin', 'Manager'].includes(userRole.value)
+})
 
 interface Staff {
   id: number

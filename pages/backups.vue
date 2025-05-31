@@ -561,6 +561,8 @@ onMounted(() => {
 
 definePageMeta({
   layout: 'default',
+  // middleware: 'auth', // The global middleware will handle this
+  requiredRole: 'Admin' // Custom meta field for our global auth middleware
 })
 </script>
 
